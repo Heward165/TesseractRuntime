@@ -107,7 +107,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Package-consumer restore failed with exit code $LASTEXITCODE." }
           dotnet run --project tests/TesseractRuntime.PackageSmoke/TesseractRuntime.PackageSmoke.csproj -c Release --no-restore -p:IncludeNative=true -p:RuntimeIdentifier=${{ matrix.rid }} -- tessdata artifacts/integration/phototest.tif 'This is a lot'
           if ($LASTEXITCODE -ne 0) { throw "Package-consumer OCR failed with exit code $LASTEXITCODE." }
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: TesseractRuntime.Native.${{ matrix.rid }}
           path: |
