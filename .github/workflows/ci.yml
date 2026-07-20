@@ -58,7 +58,9 @@ jobs:
           curl --fail --location --output artifacts/integration/phototest.tif https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif
           cp /usr/share/tesseract-ocr/5/tessdata/eng.traineddata tessdata/eng.traineddata
           cp /usr/share/tesseract-ocr/5/tessdata/osd.traineddata tessdata/osd.traineddata
-          dotnet run --project tests/TesseractRuntime.Integration/TesseractRuntime.Integration.csproj -c Release --no-build -- tessdata artifacts/integration/phototest.tif "This is a lot"
+          # Ubuntu 24.04 currently carries Tesseract 5.3.4, which predates its PAGE C export.
+          # The pinned 5.5.2 native matrix below exercises PAGE XML on every release RID.
+          dotnet run --project tests/TesseractRuntime.Integration/TesseractRuntime.Integration.csproj -c Release --no-build -- tessdata artifacts/integration/phototest.tif "This is a lot" --without-page-xml
       - name: Pack managed packages
         shell: pwsh
         run: |

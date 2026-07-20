@@ -6,9 +6,16 @@ using TesseractRuntime.ImageSharp;
 using TesseractRuntime.Pooling;
 using TesseractRuntime.SkiaSharp;
 
-if (args.Length != 3)
+if (args.Length is < 3 or > 4)
 {
-    Console.Error.WriteLine("Usage: TesseractRuntime.Integration <tessdata> <image> <expected-text>");
+    Console.Error.WriteLine("Usage: TesseractRuntime.Integration <tessdata> <image> <expected-text> [--without-page-xml]");
+    return 2;
+}
+
+var includePageXml = args.Length == 3;
+if (!includePageXml && args[3] != "--without-page-xml")
+{
+    Console.Error.WriteLine($"Unknown option: {args[3]}");
     return 2;
 }
 
@@ -24,7 +31,8 @@ var result = await lease.Engine.RecognizeAsync(
     grayImage,
     new OcrRequest
     {
-        OutputFormats = OcrOutputFormat.Hocr | OcrOutputFormat.Tsv | OcrOutputFormat.AltoXml | OcrOutputFormat.PageXml,
+        OutputFormats = OcrOutputFormat.Hocr | OcrOutputFormat.Tsv | OcrOutputFormat.AltoXml |
+            (includePageXml ? OcrOutputFormat.PageXml : OcrOutputFormat.None),
         SourceResolution = 300,
         PageSegmentationMode = OcrPageSegmentationMode.Automatic,
     });
@@ -38,7 +46,7 @@ if (!result.Text.Contains(args[2], StringComparison.OrdinalIgnoreCase))
 if (string.IsNullOrWhiteSpace(result.Hocr) ||
     string.IsNullOrWhiteSpace(result.Tsv) ||
     string.IsNullOrWhiteSpace(result.AltoXml) ||
-    string.IsNullOrWhiteSpace(result.PageXml))
+    (includePageXml && string.IsNullOrWhiteSpace(result.PageXml)))
 {
     Console.Error.WriteLine("Structured output was empty.");
     return 1;

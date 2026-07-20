@@ -119,6 +119,8 @@ without changing the process-wide `PATH`.
 ## Important behavior
 
 - Tesseract 5.x is required; native 5.5.2 is the pinned distribution version.
+- PAGE XML requires a native build that exports `TessBaseAPIGetPAGEText`; every bundled 5.5.2
+  package is tested for it, while older system Tesseract packages may not provide that export.
 - Each `OcrImage` owns its pixels. This intentionally trades one copy for native memory safety.
 - Buffer recognition assigns the logical input name `memory` by default. Set `OcrRequest.InputName`
   when structured XML should contain the original document name.
