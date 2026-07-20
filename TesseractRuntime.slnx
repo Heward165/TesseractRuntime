@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="src/TesseractRuntime/TesseractRuntime.csproj" />
+  <Project Path="src/TesseractRuntime.ImageSharp/TesseractRuntime.ImageSharp.csproj" />
+  <Project Path="src/TesseractRuntime.SkiaSharp/TesseractRuntime.SkiaSharp.csproj" />
+  <Project Path="examples/TesseractRuntime.Example/TesseractRuntime.Example.csproj" />
+  <Project Path="tests/TesseractRuntime.Tests/TesseractRuntime.Tests.csproj" />
+  <Project Path="tests/TesseractRuntime.Conformance/TesseractRuntime.Conformance.csproj" />
+  <Project Path="tests/TesseractRuntime.Integration/TesseractRuntime.Integration.csproj" />
+  <Project Path="tests/TesseractRuntime.AotSmoke/TesseractRuntime.AotSmoke.csproj" />
+</Solution>

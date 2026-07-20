@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: TesseractRuntime
+message: If you use this software, please cite it using this metadata.
+type: software
+authors:
+  - family-names: Vansley
+    given-names: Valdo
+repository-code: https://github.com/Heward165/TesseractRuntime
+license: MIT
+version: 0.1.0-preview.1
+date-released: 2026-07-20

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <NoWarn>$(NoWarn);CA1303;CA1849;CA2007</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="TesseractRuntime" Version="0.1.0-preview.1" />
+    <PackageReference Include="TesseractRuntime.ImageSharp" Version="0.1.0-preview.1" />
+    <PackageReference Include="TesseractRuntime.Native.$(RuntimeIdentifier)" Version="0.1.0-preview.1" Condition="'$(IncludeNative)' == 'true'" />
+  </ItemGroup>
+</Project>

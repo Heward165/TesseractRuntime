@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <Description>Optional SkiaSharp adapter for TesseractRuntime.</Description>
+    <PackageId>TesseractRuntime.SkiaSharp</PackageId>
+    <PackageTags>ocr;tesseract;skiasharp;image</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TesseractRuntime\TesseractRuntime.csproj" />
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

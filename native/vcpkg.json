@@ -1,0 +1,11 @@
+{
+  "name": "tesseractruntime-native",
+  "version-string": "5.5.2",
+  "builtin-baseline": "a51bb4d1434e6d0927ff79db8033bed8522b85df",
+  "dependencies": [
+    {
+      "name": "tesseract",
+      "default-features": false
+    }
+  ]
+}

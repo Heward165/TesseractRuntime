@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <!-- The harness deliberately catches all test failures and writes synchronously to the console. -->
+    <NoWarn>$(NoWarn);CA1031;CA1849;CA2007</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TesseractRuntime\TesseractRuntime.csproj" />
+  </ItemGroup>
+</Project>

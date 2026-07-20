@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CA1303;CA1849;CA2007</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TesseractRuntime\TesseractRuntime.csproj" />
+    <ProjectReference Include="..\..\src\TesseractRuntime.ImageSharp\TesseractRuntime.ImageSharp.csproj" />
+    <ProjectReference Include="..\..\src\TesseractRuntime.SkiaSharp\TesseractRuntime.SkiaSharp.csproj" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

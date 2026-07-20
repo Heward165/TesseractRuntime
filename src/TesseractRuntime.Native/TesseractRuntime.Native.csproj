@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageId>TesseractRuntime.Native.$(RuntimeIdentifier)</PackageId>
+    <Description>Tesseract 5.5.2 native runtime assets for $(RuntimeIdentifier).</Description>
+    <PackageTags>ocr;tesseract;native;$(RuntimeIdentifier)</PackageTags>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <Target Name="ValidateNativePackageInputs" BeforeTargets="Pack">
+    <Error Condition="'$(RuntimeIdentifier)' == ''" Text="RuntimeIdentifier is required." />
+    <Error Condition="'$(NativeAssetsDirectory)' == '' Or !Exists('$(NativeAssetsDirectory)')" Text="NativeAssetsDirectory must point to built native assets." />
+  </Target>
+  <ItemGroup Condition="'$(NativeAssetsDirectory)' != ''">
+    <None Include="$(NativeAssetsDirectory)\**\*" Pack="true" PackagePath="runtimes\$(RuntimeIdentifier)\native\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

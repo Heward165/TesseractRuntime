@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <Description>Optional ImageSharp adapter for TesseractRuntime.</Description>
+    <PackageId>TesseractRuntime.ImageSharp</PackageId>
+    <PackageTags>ocr;tesseract;imagesharp;image</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TesseractRuntime\TesseractRuntime.csproj" />
+    <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>

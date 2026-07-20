@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <AssemblyName>TesseractRuntime</AssemblyName>
+    <RootNamespace>TesseractRuntime</RootNamespace>
+    <Description>Safe, dependency-free .NET bindings and concurrency primitives for Tesseract OCR.</Description>
+    <PackageId>TesseractRuntime</PackageId>
+    <PackageTags>ocr;tesseract;offline;native;cross-platform</PackageTags>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsAotCompatible>true</IsAotCompatible>
+    <NoWarn>$(NoWarn);CA2007</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- ConfigureAwait does not affect xUnit's isolated test scheduler. -->
+    <!-- Several lifecycle tests deliberately transfer fake IDisposable ownership into a pool. -->
+    <NoWarn>$(NoWarn);CA2000;CA2007</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\TesseractRuntime\TesseractRuntime.csproj" />
+    <ProjectReference Include="..\..\src\TesseractRuntime.ImageSharp\TesseractRuntime.ImageSharp.csproj" />
+    <ProjectReference Include="..\..\src\TesseractRuntime.SkiaSharp\TesseractRuntime.SkiaSharp.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="coverlet.collector" PrivateAssets="all" />
+    <PackageReference Include="coverlet.msbuild" PrivateAssets="all" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" PrivateAssets="all" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

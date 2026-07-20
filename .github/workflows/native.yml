@@ -1,0 +1,116 @@
+name: Native runtime matrix
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  VCPKG_DISABLE_METRICS: 1
+  VCPKG_COMMIT: a51bb4d1434e6d0927ff79db8033bed8522b85df
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            triplet: x64-windows-dynamic
+            os: windows-2025
+          - rid: win-arm64
+            triplet: arm64-windows-dynamic
+            os: windows-11-arm
+          - rid: linux-x64
+            triplet: x64-linux-dynamic
+            os: ubuntu-24.04
+          - rid: linux-arm64
+            triplet: arm64-linux-dynamic
+            os: ubuntu-24.04-arm
+          - rid: osx-x64
+            triplet: x64-osx-dynamic
+            os: macos-15-intel
+          - rid: osx-arm64
+            triplet: arm64-osx-dynamic
+            os: macos-15
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Install native build prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install --yes autoconf-archive automake libtool ninja-build patchelf pkg-config
+      - name: Bootstrap pinned vcpkg
+        shell: pwsh
+        run: |
+          git clone --filter=blob:none https://github.com/microsoft/vcpkg native/vcpkg
+          git -C native/vcpkg checkout $env:VCPKG_COMMIT
+          if ($IsWindows) { native/vcpkg/bootstrap-vcpkg.bat -disableMetrics } else { native/vcpkg/bootstrap-vcpkg.sh -disableMetrics }
+      - name: Build Tesseract 5.5.2 and dependencies
+        shell: pwsh
+        run: native/vcpkg/vcpkg install --x-manifest-root=native --x-install-root=native/vcpkg_installed --overlay-triplets=native/triplets --triplet=${{ matrix.triplet }} --clean-after-build
+      - name: Collect runtime dependency closure and notices
+        shell: pwsh
+        run: eng/collect-native-assets.ps1 -Rid '${{ matrix.rid }}' -Triplet '${{ matrix.triplet }}' -InstallRoot 'native/vcpkg_installed' -OutputRoot 'artifacts/native'
+      - name: Make Linux dependencies relocatable
+        if: runner.os == 'Linux'
+        run: find artifacts/native/${{ matrix.rid }} -maxdepth 1 -type f -name '*.so*' -exec patchelf --set-rpath '$ORIGIN' {} \;
+      - name: Make macOS dependencies relocatable
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          for library in artifacts/native/${{ matrix.rid }}/*.dylib; do
+            install_name_tool -id "@rpath/$(basename "$library")" "$library"
+            otool -L "$library" | tail -n +2 | awk '{print $1}' | while read -r dependency; do
+              case "$dependency" in
+                *vcpkg_installed*/lib/*.dylib)
+                  install_name_tool -change "$dependency" "@loader_path/$(basename "$dependency")" "$library"
+                  ;;
+              esac
+            done
+          done
+      - name: Download integration fixtures
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts/integration,tessdata | Out-Null
+          Invoke-WebRequest https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif -OutFile artifacts/integration/phototest.tif
+          Invoke-WebRequest https://github.com/tesseract-ocr/tessdata_fast/raw/refs/tags/4.1.0/eng.traineddata -OutFile tessdata/eng.traineddata
+          Invoke-WebRequest https://github.com/tesseract-ocr/tessdata_fast/raw/refs/tags/4.1.0/osd.traineddata -OutFile tessdata/osd.traineddata
+      - name: Exercise packaged native runtime
+        shell: pwsh
+        env:
+          TESSERACT_RUNTIME_NATIVE_PATH: ${{ github.workspace }}/artifacts/native/${{ matrix.rid }}
+        run: |
+          dotnet run --project tests/TesseractRuntime.Integration/TesseractRuntime.Integration.csproj -c Release -- tessdata artifacts/integration/phototest.tif 'This is a lot'
+          if ($LASTEXITCODE -ne 0) { throw "Native integration failed with exit code $LASTEXITCODE." }
+      - name: Pack RID-specific native package
+        shell: pwsh
+        run: |
+          dotnet pack src/TesseractRuntime/TesseractRuntime.csproj -c Release -o artifacts/packages
+          if ($LASTEXITCODE -ne 0) { throw "Core package build failed with exit code $LASTEXITCODE." }
+          dotnet pack src/TesseractRuntime.ImageSharp/TesseractRuntime.ImageSharp.csproj -c Release -o artifacts/packages
+          if ($LASTEXITCODE -ne 0) { throw "ImageSharp package build failed with exit code $LASTEXITCODE." }
+          dotnet pack src/TesseractRuntime.Native/TesseractRuntime.Native.csproj -c Release -o artifacts/packages -p:RuntimeIdentifier=${{ matrix.rid }} -p:NativeAssetsDirectory=${{ github.workspace }}/artifacts/native/${{ matrix.rid }}
+          if ($LASTEXITCODE -ne 0) { throw "Native package build failed with exit code $LASTEXITCODE." }
+          eng/test-native-package.ps1 -PackageDirectory artifacts/packages -Rid '${{ matrix.rid }}'
+      - name: Install packages into a clean consumer and perform OCR
+        shell: pwsh
+        env:
+          TESSERACT_RUNTIME_NATIVE_PATH: ''
+        run: |
+          $localPackages = (Resolve-Path artifacts/packages).Path
+          $nuget = 'https://api.nuget.org/v3/index.json'
+          dotnet restore tests/TesseractRuntime.PackageSmoke/TesseractRuntime.PackageSmoke.csproj --no-cache -s $localPackages -s $nuget -p:IncludeNative=true -p:RuntimeIdentifier=${{ matrix.rid }}
+          if ($LASTEXITCODE -ne 0) { throw "Package-consumer restore failed with exit code $LASTEXITCODE." }
+          dotnet run --project tests/TesseractRuntime.PackageSmoke/TesseractRuntime.PackageSmoke.csproj -c Release --no-restore -p:IncludeNative=true -p:RuntimeIdentifier=${{ matrix.rid }} -- tessdata artifacts/integration/phototest.tif 'This is a lot'
+          if ($LASTEXITCODE -ne 0) { throw "Package-consumer OCR failed with exit code $LASTEXITCODE." }
+      - uses: actions/upload-artifact@v6
+        with:
+          name: TesseractRuntime.Native.${{ matrix.rid }}
+          path: |
+            artifacts/packages/*.*nupkg
+            artifacts/native/${{ matrix.rid }}/licenses/*.txt
+          if-no-files-found: error
