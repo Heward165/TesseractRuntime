@@ -20,8 +20,8 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
-            8.0.x
-            10.0.x
+            8.0.423
+            10.0.302
       - run: dotnet restore TesseractRuntime.slnx
       - run: dotnet format TesseractRuntime.slnx --verify-no-changes --no-restore
       - run: dotnet build TesseractRuntime.slnx -c Release --no-restore
