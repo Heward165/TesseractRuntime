@@ -78,7 +78,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Native AOT publish failed with exit code $LASTEXITCODE." }
           if ($IsWindows) { & artifacts/aot/TesseractRuntime.AotSmoke.exe } else { & artifacts/aot/TesseractRuntime.AotSmoke }
           if ($LASTEXITCODE -ne 0) { throw "Native AOT smoke failed with exit code $LASTEXITCODE." }
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: runner.os == 'Linux'
         with:
           name: managed-packages
